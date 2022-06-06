@@ -1,9 +1,5 @@
 use std::{fs::{self}, cmp::Ordering};
 
-// pub fn get_files_list(parent: &std::path::PathBuf)  {}
-
-
-
 pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> String {
     
     let html_content = String::from("<!DOCTYPE html><html lang=\"en\"><head><title>Hello, world!</title><meta charset=\"UTF-8\" /><meta name=\"description\" content=\"\" /></head>
@@ -35,8 +31,14 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
     }
 
     if child.cmp(d) != Ordering::Equal {
-    let parent_dir = child.parent().unwrap().strip_prefix(d).unwrap().display().to_string();
-    files = format!("{}\n<br><hr><br><a href=\"/{}\">Go Back</a>\n<br>",files, parent_dir);
+        let parent_dir = child.parent().unwrap().strip_prefix(d).unwrap().display().to_string();
+        files = format!("{}\n<br><hr><br><a href=\"/{}\">Go Back</a>\n<br>",files, parent_dir);
     }
     format!("{}\n{}\n</body>\n</html>",html_content, files)
+}
+
+
+// donwload file locally
+pub fn get_file() {
+
 }

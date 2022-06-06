@@ -10,13 +10,19 @@ use std::path::PathBuf;
 mod msg;
 mod filehandler;
 
+const LOCAL_PUBLIC_IP: &str = "0.0.0.0";
+// const LOCAL_PRIVATE_IP: &str = "127.0.0.1";
+
 fn main () {
 
     let pwd = env::current_dir().unwrap();
     let port_num = env::args().nth(1).unwrap();
-    let listener = TcpListener::bind(format!("0.0.0.0:{}",port_num)).unwrap();
-
+    let bind_addr = format!("{}:{}",LOCAL_PUBLIC_IP,port_num);
     fs::File::create("favicon.ico").expect("cannot create favicon.");
+    
+    dbg!(&bind_addr);
+
+    let listener = TcpListener::bind(bind_addr).unwrap();
     for stream in listener.incoming(){
         let stream = stream.unwrap();
         handle_connection(stream, &pwd);
@@ -56,14 +62,22 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
         child =  pwd.as_path().join(child_path);
     }
 
-    let contents ;
+    
+    // if selected object is a directory, open it
+    // else download the file
+    
     if child.is_dir() {
-        contents = filehandler::create_index_html(pwd, &child);
-    } else {
-        contents = String::from("");
+        let contents = filehandler::create_index_html(&pwd, &child);    
+        let response = format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}", contents.len(), contents);    
+        stream.write(response.as_bytes()).unwrap();
+        stream.flush().unwrap();
+        
+    } else if child.is_file(){
+        let contents = fs::read(&child).expect("cant read file");
+        let response = format!("HTTP/1.1 200 OK\r\nContent-Type:application/octect-stream\r\ncontent-disposition:attachment;filename={}\r\n{}", child.strip_prefix(&pwd).unwrap().display().to_string(),String::from_utf8(contents).unwrap());
+        dbg!(&response);
+        stream.write(response.as_bytes()).unwrap();
+        stream.flush().unwrap();
     }
-    let response = format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}", contents.len(), contents);    
-
-    stream.write(response.as_bytes()).unwrap();
-    stream.flush().unwrap();
+    
 }
