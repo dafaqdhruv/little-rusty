@@ -72,10 +72,13 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
         stream.write(response.as_bytes()).unwrap();
         stream.flush().unwrap();
         
-    } else if child.is_file(){
-        let contents = fs::read(&child).expect("cant read file");
-        let response = format!("HTTP/1.1 200 OK\r\nContent-Type:application/octect-stream\r\ncontent-disposition:attachment;filename={}\r\n{}", child.strip_prefix(&pwd).unwrap().display().to_string(),String::from_utf8(contents).unwrap());
-        dbg!(&response);
+    } else {
+        let contents = match fs::read(&child) {
+            Ok(v) => v,
+            Err(_) => {return},
+        };
+        let response = format!("HTTP/1.1 200 OK\r\nContent-Type:application/octect-stream\r\ncontent-disposition:attachment;filename={}\r\n{}", child.strip_prefix(&pwd).unwrap().display().to_string(),String::from_utf8_lossy(&contents));
+
         stream.write(response.as_bytes()).unwrap();
         stream.flush().unwrap();
     }
