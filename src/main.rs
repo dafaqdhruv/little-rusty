@@ -38,7 +38,6 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
         child = pwd.to_path_buf();
     } else {
 
-        println!("{}", String::from_utf8_lossy(&buffer[..]));
         tmp = match buffer.strip_prefix(b"GET "){
             Some(v) => v,
             None => {return;}

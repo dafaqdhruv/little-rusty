@@ -1,4 +1,4 @@
-use std::fs::{self};
+use std::{fs::{self}, cmp::Ordering};
 
 // pub fn get_files_list(parent: &std::path::PathBuf)  {}
 
@@ -10,7 +10,7 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
         <body>
         <h1>Hello, world!</h1>
         This is a sample html file for my server. 
-        <h3># List</h3>");
+        <h3># Contents : </h3><hr>");
 
     if !child.starts_with(d) {
         return html_content;
@@ -19,6 +19,8 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
     let pwd = fs::read_dir(&child).unwrap();
     let mut files = String::new();
 
+
+    // insert links to directory's contents
     for f in pwd {
         
         let dir_entry = f.unwrap().path();
@@ -29,10 +31,12 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
             files = format!("{}<br><a href=\"/{}\">{}/</a><br>",files, child_path.display().to_string(), tmp);
         } else {
             files = format!("{}<br><a href=\"/{}\">{}</a><br>",files, child_path.display().to_string(), tmp);
-        }
-
-        
+        }    
     }
 
+    if child.cmp(d) != Ordering::Equal {
+    let parent_dir = child.parent().unwrap().strip_prefix(d).unwrap().display().to_string();
+    files = format!("{}\n<br><hr><br><a href=\"/{}\">Go Back</a>\n<br>",files, parent_dir);
+    }
     format!("{}\n{}\n</body>\n</html>",html_content, files)
 }
