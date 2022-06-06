@@ -16,7 +16,7 @@ fn main () {
     let port_num = env::args().nth(1).unwrap();
     let listener = TcpListener::bind(format!("0.0.0.0:{}",port_num)).unwrap();
 
-    fs::File::create("favicon.ico");
+    fs::File::create("favicon.ico").expect("cannot create favicon.");
     for stream in listener.incoming(){
         let stream = stream.unwrap();
         handle_connection(stream, &pwd);
@@ -39,7 +39,10 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
     } else {
 
         println!("{}", String::from_utf8_lossy(&buffer[..]));
-        tmp = buffer.strip_prefix(b"GET ").expect("Invalid Message");
+        tmp = match buffer.strip_prefix(b"GET "){
+            Some(v) => v,
+            None => {return;}
+        };
         for i in tmp {
             if i.cmp(&32) == Ordering::Equal  {
                 break;
