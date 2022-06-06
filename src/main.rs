@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::env;
 use std::str;
 
@@ -27,27 +28,38 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
     stream.read(&mut buffer).unwrap();
 
     let prefix = b"GET / HTTP/1.1\r\n";
-    let child : &PathBuf;
-    let mut tmp;
-    let mut buf_text = "";
+    let child : PathBuf;
+    let tmp;
+    let mut cnt = 0;
+    let child_path ;
+    let child_path_cow ;
+    //println!("{}", String::from_utf8_lossy(&buffer[..]));
 
     if buffer.starts_with(prefix){
-        child = pwd;
+        child = pwd.to_path_buf();
     } else {
-        tmp = buffer.strip_prefix(b"GET ").unwrap();
-        
-        let mut cnt=0;
+
+        tmp = buffer.strip_prefix(b"GET ").expect("Invalid Message");
         for i in tmp {
-            if i == &b' ' {
+            if i.cmp(&32) == Ordering::Equal  {
                 break;
             }
-            cnt = cnt+1;
+            cnt = cnt +1;
         }
+        dbg!(cnt);
 
-        child = pwd.join(str::from_urf8(tmp.split_at(cnt+1)));
+        // println!("{}",String::from_utf8_lossy(&tmp[..cnt]));
+
+        child_path_cow = String::from_utf8_lossy(&tmp[1..cnt]);
+        child_path = child_path_cow.as_ref();
+        let tmp = pwd.as_path().join(child_path);
         dbg!(&tmp);
+        dbg!(pwd.as_path().join(child_path));
+
+        child = tmp;
+
     }
-    let contents = filehandler::create_index_html(pwd, child);
+    let contents = filehandler::create_index_html(pwd, &child);
     let response = format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}", contents.len(), contents);    
 
     stream.write(response.as_bytes()).unwrap();
