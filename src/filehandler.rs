@@ -1,4 +1,4 @@
-use std::fs;
+use std::fs::{self, DirEntry};
 
 // pub fn get_files_list(parent: &std::path::PathBuf)  {}
 
@@ -20,9 +20,18 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
     let mut files = String::new();
 
     for f in pwd {
-    
-        let tmp = f.unwrap().path().strip_prefix(child).unwrap().display().to_string();
-        files = format!("{}<br><a href=\"{1}\">{1}</a><br>",files, tmp);
+        
+        let dir_entry = f.unwrap().path();
+        let child_path = dir_entry.strip_prefix(d).unwrap();
+        let tmp = dir_entry.strip_prefix(child).unwrap().display().to_string();
+
+        if child_path.is_dir() {
+            files = format!("{}<br><a href=\"/{}\">{}/</a><br>",files, child_path.display().to_string(), tmp);
+        } else {
+            files = format!("{}<br><a href=\"/{}\">{}</a><br>",files, child_path.display().to_string(), tmp);
+        }
+
+        
     }
 
     format!("{}\n{}\n</body>\n</html>",html_content, files)
