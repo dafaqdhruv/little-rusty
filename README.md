@@ -1,6 +1,6 @@
 # little-rusty
 
-This is an experimental http file server built using rust.
+A HTTP file server built using rust.
 
 ## How to build
 * Clone the repository and switch directories:  
