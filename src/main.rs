@@ -7,7 +7,6 @@ use std::net::TcpListener;
 use std::net::TcpStream;
 use std::path::PathBuf;
 
-mod msg;
 mod filehandler;
 
 const LOCAL_PUBLIC_IP: &str = "0.0.0.0";
