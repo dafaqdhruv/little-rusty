@@ -5,7 +5,7 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
     let html_content = String::from("<!DOCTYPE html><html lang=\"en\"><head><title>Hello, world!</title><meta charset=\"UTF-8\" /><meta name=\"description\" content=\"\" /></head>
         <body>
         <h1>Hello, world!</h1>
-        This is a sample html file for my server. 
+        This is a sample html page for little-rusty file server.
         <h3># Contents : </h3><hr>");
 
     if !child.starts_with(d) {
