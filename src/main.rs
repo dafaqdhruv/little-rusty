@@ -19,7 +19,7 @@ fn main () {
     let port_num = env::args().nth(1).unwrap();
     let bind_addr = format!("{}:{}",LOCAL_PUBLIC_IP,port_num);
     fs::File::create("favicon.ico").expect("cannot create favicon.");
-    
+
     dbg!(&bind_addr);
 
     let listener = TcpListener::bind(bind_addr).unwrap();
@@ -38,7 +38,7 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
     let child : PathBuf;
     let tmp;
     let mut cnt = 0;
-    
+
 
     if buffer.starts_with(prefix){
         child = pwd.to_path_buf();
@@ -57,21 +57,21 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
 
         let child_path = String::from_utf8_lossy(&tmp[1..cnt]);
         let child_path = child_path.as_ref();
-    
+
         dbg!(&child_path);
         child =  pwd.as_path().join(child_path);
     }
 
-    
+
     // if selected object is a directory, open it
     // else download the file
-    
+
     if child.is_dir() {
-        let contents = filehandler::create_index_html(&pwd, &child);    
-        let response = format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}", contents.len(), contents);    
+        let contents = filehandler::create_index_html(&pwd, &child);
+        let response = format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}", contents.len(), contents);
         stream.write(response.as_bytes()).unwrap();
         stream.flush().unwrap();
-        
+
     } else {
         let contents = match fs::read(&child) {
             Ok(v) => v,
@@ -82,5 +82,5 @@ pub fn handle_connection(mut stream: TcpStream, pwd : &std::path::PathBuf) {
         stream.write(response.as_bytes()).unwrap();
         stream.flush().unwrap();
     }
-    
+
 }

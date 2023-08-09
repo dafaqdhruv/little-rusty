@@ -1,7 +1,7 @@
 use std::{fs::{self}, cmp::Ordering};
 
 pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> String {
-    
+
     let html_content = String::from("<!DOCTYPE html><html lang=\"en\"><head><title>Hello, world!</title><meta charset=\"UTF-8\" /><meta name=\"description\" content=\"\" /></head>
         <body>
         <h1>Hello, world!</h1>
@@ -18,7 +18,7 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
 
     // insert links to directory's contents
     for f in pwd {
-        
+
         let dir_entry = f.unwrap().path();
         let child_path = dir_entry.strip_prefix(d).unwrap();
         let tmp = dir_entry.strip_prefix(child).unwrap().display().to_string();
@@ -27,7 +27,7 @@ pub fn create_index_html(d: &std::path::PathBuf, child: &std::path::PathBuf) -> 
             files = format!("{}<br><a href=\"/{}\">{}/</a><br>",files, child_path.display().to_string(), tmp);
         } else {
             files = format!("{}<br><a href=\"/{}\">{}</a><br>",files, child_path.display().to_string(), tmp);
-        }    
+        }
     }
 
     if child.cmp(d) != Ordering::Equal {
